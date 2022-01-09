@@ -2,11 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
-	"flag"
+	"strconv"
+	"github.com/fatih/color"
 )
 
 var (
@@ -56,13 +58,22 @@ type WeatherResp struct {
 	} `json:"current"`
 }
 
-func printWeather(w WeatherResp) {
-	fmt.Fprintf(os.Stdout, "City: %s Region: %s Country: %s\n", w.Location.Name, w.Location.Region, w.Location.Country)
-	fmt.Fprintf(os.Stdout, "Temp: %3.2fc Feels Like: %3.2fc\n", w.Current.TempC, w.Current.FeelslikeC)
-	fmt.Fprintf(os.Stdout, "Wind speed: %3.2f Kph\n", w.Current.WindKph)
-	fmt.Fprintf(os.Stdout, "Gust speed: %3.2f Kph\n", w.Current.GustKph)
+func colorf(v float64, c *color.Color) string {
+	return c.SprintFunc()(strconv.FormatFloat(v, 'f', -1, 64))
 }
 
+func printWeather(w WeatherResp) {
+	cyan := color.New(color.FgCyan)
+	cyanSprint := cyan.SprintFunc()
+
+
+	fmt.Fprintf(os.Stdout, "Name: %s Region: %s Country: %s\n", cyanSprint(w.Location.Name), cyanSprint(w.Location.Region), cyanSprint(w.Location.Country))
+	fmt.Fprintf(os.Stdout, "Temp: %sc Feels Like: %sc\n",
+		colorf(w.Current.TempC, cyan),
+		colorf(w.Current.FeelslikeC, cyan))
+	fmt.Fprintf(os.Stdout, "Wind speed: %s Kph\n", colorf(w.Current.WindKph,cyan))
+	fmt.Fprintf(os.Stdout, "Gust speed: %s Kph\n", colorf(w.Current.GustKph,cyan))
+}
 
 func getWeather(apikey, location string) string {
 	baseUrl, err := url.Parse(baseURL)
@@ -93,17 +104,16 @@ func getWeather(apikey, location string) string {
 	return ""
 }
 
-
 func main() {
 	apiKey := os.Getenv("WEATHER_APIKEY")
 	location := flag.String("location", "auto:ip", "city to get weather for")
-	flag.Parse();
+	flag.Parse()
 
 	if apiKey == "" {
 		fmt.Println("Cannot find API key. Shutting down.")
 		os.Exit(1)
 	}
 
- 	fmt.Println(getWeather(apiKey, *location))
+	fmt.Println(getWeather(apiKey, *location))
 
 }
