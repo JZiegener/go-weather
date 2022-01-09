@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"flag"
 )
 
 var (
@@ -60,11 +61,10 @@ func printWeather(w WeatherResp) {
 	fmt.Fprintf(os.Stdout, "Temp: %3.2fc Feels Like: %3.2fc\n", w.Current.TempC, w.Current.FeelslikeC)
 	fmt.Fprintf(os.Stdout, "Wind speed: %3.2f Kph\n", w.Current.WindKph)
 	fmt.Fprintf(os.Stdout, "Gust speed: %3.2f Kph\n", w.Current.GustKph)
-
 }
 
 
-func getWeather(apikey string) string {
+func getWeather(apikey, location string) string {
 	baseUrl, err := url.Parse(baseURL)
 	if err != nil {
 		fmt.Println("Malformed URL: ", err.Error())
@@ -73,7 +73,7 @@ func getWeather(apikey string) string {
 
 	query := url.Values{}
 	query.Add("key", apikey)
-	query.Add("q", "auto:ip")
+	query.Add("q", location)
 	baseUrl.RawQuery = query.Encode()
 
 	resp, err := http.Get(baseUrl.String())
@@ -93,19 +93,17 @@ func getWeather(apikey string) string {
 	return ""
 }
 
-func main() {
-	var apiKey string
-	apiKey = os.Getenv("WEATHER_APIKEY")
 
-	if len(os.Args) >= 2 {
-		apiKey = os.Args[1]
-	}
+func main() {
+	apiKey := os.Getenv("WEATHER_APIKEY")
+	location := flag.String("location", "auto:ip", "city to get weather for")
+	flag.Parse();
 
 	if apiKey == "" {
 		fmt.Println("Cannot find API key. Shutting down.")
 		os.Exit(1)
 	}
 
-	fmt.Println(getWeather(apiKey))
+ 	fmt.Println(getWeather(apiKey, *location))
 
 }
