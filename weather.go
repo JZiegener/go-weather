@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+
 	"github.com/fatih/color"
 )
 
@@ -58,26 +59,99 @@ type WeatherResp struct {
 	} `json:"current"`
 }
 
+type WeatherReport struct {
+	Condition  string
+	Temp       float64
+	Wind       float64
+	WindGust   float64
+	WindDegree int
+	WindDir    string
+	Pressure   float64
+	Percip     float64
+	Humidity   int
+	Cloud      int
+	FeelsLike  float64
+	Visiblity  float64
+	Uv         float64
+}
+
+func WeatherReportMetric(w WeatherResp) WeatherReport {
+	return WeatherReport{w.Current.Condition.Text,
+		w.Current.TempC,
+		w.Current.WindKph,
+		w.Current.GustKph,
+		w.Current.WindDegree,
+		w.Current.WindDir,
+		w.Current.PressureMb,
+		w.Current.PrecipMm,
+		w.Current.Humidity,
+		w.Current.Cloud,
+		w.Current.FeelslikeC,
+		w.Current.VisKm,
+		w.Current.Uv}
+}
+
+func WeatherReportImperial(w WeatherResp) WeatherReport {
+	return WeatherReport{w.Current.Condition.Text,
+		w.Current.TempF,
+		w.Current.WindMph,
+		w.Current.GustMph,
+		w.Current.WindDegree,
+		w.Current.WindDir,
+		w.Current.PressureIn,
+		w.Current.PrecipIn,
+		w.Current.Humidity,
+		w.Current.Cloud,
+		w.Current.FeelslikeF,
+		w.Current.VisMiles,
+		w.Current.Uv}
+}
+
+type WeatherUnits struct {
+	temp     string
+	speed    string
+	volume   string
+	distance string
+	pressure string
+}
+
+func UnitsMetric() WeatherUnits {
+	return WeatherUnits{"C", "KpH", "mm^3", "KM", "mB"}
+}
+
+func UnitsImperial() WeatherUnits {
+	return WeatherUnits{"F", "MpH", "in^3", "Mi", "In"}
+}
+
 func colorf(v float64, c *color.Color) string {
 	return c.SprintFunc()(strconv.FormatFloat(v, 'f', -1, 64))
 }
 
-
-
-func printWeather(w WeatherResp) {
+func printWeather(w WeatherResp, useMetric bool) {
 	cyan := color.New(color.FgCyan)
-//	cyanSprint := cyan.SprintFunc()
+
+	var units WeatherUnits
+	var report WeatherReport
+
+	if useMetric {
+		units = UnitsMetric()
+		report = WeatherReportMetric(w)
+	} else {
+		units = UnitsImperial()
+		report = WeatherReportImperial(w)
+	}
+
 	fmt.Fprintf(os.Stdout, "Weather report: %s, %s, %s\n", w.Location.Name, w.Location.Region, w.Location.Country)
-	fmt.Fprintf(os.Stdout, "\t%s\n",w.Current.Condition.Text)
-	fmt.Fprintf(os.Stdout, "\t%s (%s) c\n",
-		colorf(w.Current.TempC, cyan),
-		colorf(w.Current.FeelslikeC, cyan))
-	fmt.Fprintf(os.Stdout, "\t%s - %s Kph\n", colorf(w.Current.WindKph,cyan), colorf(w.Current.GustKph, cyan))
-	fmt.Fprintf(os.Stdout, "\t%s km\n", colorf(w.Current.VisKm, cyan))
-	fmt.Fprintf(os.Stdout, "\t%s mm", colorf(w.Current.PrecipMm, cyan))
+	fmt.Fprintf(os.Stdout, "\t%s\n", report.Condition)
+	fmt.Fprintf(os.Stdout, "\t%s (%s) %s\n",
+		colorf(report.Temp, cyan),
+		colorf(report.FeelsLike, cyan), units.temp)
+	fmt.Fprintf(os.Stdout, "\t%s - %s %s\n", colorf(report.Wind, cyan), colorf(report.WindGust, cyan), units.speed)
+	fmt.Fprintf(os.Stdout, "\t%s %s\n", colorf(report.Visiblity, cyan), units.distance)
+	fmt.Fprintf(os.Stdout, "\t%s %s", colorf(report.Percip, cyan), units.volume)
 }
 
-func getWeather(apikey, location string) string {
+func getWeather(apikey, location string, useMetric bool) string {
 	baseUrl, err := url.Parse(baseURL)
 	if err != nil {
 		fmt.Println("Malformed URL: ", err.Error())
@@ -102,20 +176,26 @@ func getWeather(apikey, location string) string {
 	if err != nil {
 		panic(err)
 	}
-	printWeather(w)
+	printWeather(w, useMetric)
 	return ""
 }
 
 func main() {
 	apiKey := os.Getenv("WEATHER_APIKEY")
 	location := flag.String("location", "auto:ip", "city to get weather for")
+	units := flag.String("unit", "c", "Units to uses, c for Metric, f for Imperial")
 	flag.Parse()
 
 	if apiKey == "" {
 		fmt.Println("Cannot find API key. Shutting down.")
 		os.Exit(1)
 	}
+	useMetric := true
+	if *units == "f" {
+		useMetric = false
+	}
+	
 
-	fmt.Println(getWeather(apiKey, *location))
+	fmt.Println(getWeather(apiKey, *location, useMetric))
 
 }
