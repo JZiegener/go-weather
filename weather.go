@@ -55,6 +55,15 @@ type WeatherResp struct {
 	} `json:"current"`
 }
 
+func printWeather(w WeatherResp) {
+	fmt.Fprintf(os.Stdout, "City: %s Region: %s Country: %s\n", w.Location.Name, w.Location.Region, w.Location.Country)
+	fmt.Fprintf(os.Stdout, "Temp: %3.2fc Feels Like: %3.2fc\n", w.Current.TempC, w.Current.FeelslikeC)
+	fmt.Fprintf(os.Stdout, "Wind speed: %3.2f Kph\n", w.Current.WindKph)
+	fmt.Fprintf(os.Stdout, "Gust speed: %3.2f Kph\n", w.Current.GustKph)
+
+}
+
+
 func getWeather(apikey string) string {
 	baseUrl, err := url.Parse(baseURL)
 	if err != nil {
@@ -63,12 +72,9 @@ func getWeather(apikey string) string {
 	}
 
 	query := url.Values{}
-	//query.Add("domain", baseURL)
 	query.Add("key", apikey)
 	query.Add("q", "auto:ip")
 	baseUrl.RawQuery = query.Encode()
-
-	fmt.Println("Making Request: ", baseUrl.String())
 
 	resp, err := http.Get(baseUrl.String())
 	if err != nil {
@@ -83,7 +89,7 @@ func getWeather(apikey string) string {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(w)
+	printWeather(w)
 	return ""
 }
 
