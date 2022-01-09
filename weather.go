@@ -62,17 +62,19 @@ func colorf(v float64, c *color.Color) string {
 	return c.SprintFunc()(strconv.FormatFloat(v, 'f', -1, 64))
 }
 
+
+
 func printWeather(w WeatherResp) {
 	cyan := color.New(color.FgCyan)
-	cyanSprint := cyan.SprintFunc()
-
-
-	fmt.Fprintf(os.Stdout, "Name: %s Region: %s Country: %s\n", cyanSprint(w.Location.Name), cyanSprint(w.Location.Region), cyanSprint(w.Location.Country))
-	fmt.Fprintf(os.Stdout, "Temp: %sc Feels Like: %sc\n",
+//	cyanSprint := cyan.SprintFunc()
+	fmt.Fprintf(os.Stdout, "Weather report: %s, %s, %s\n", w.Location.Name, w.Location.Region, w.Location.Country)
+	fmt.Fprintf(os.Stdout, "\t%s\n",w.Current.Condition.Text)
+	fmt.Fprintf(os.Stdout, "\t%s (%s) c\n",
 		colorf(w.Current.TempC, cyan),
 		colorf(w.Current.FeelslikeC, cyan))
-	fmt.Fprintf(os.Stdout, "Wind speed: %s Kph\n", colorf(w.Current.WindKph,cyan))
-	fmt.Fprintf(os.Stdout, "Gust speed: %s Kph\n", colorf(w.Current.GustKph,cyan))
+	fmt.Fprintf(os.Stdout, "\t%s - %s Kph\n", colorf(w.Current.WindKph,cyan), colorf(w.Current.GustKph, cyan))
+	fmt.Fprintf(os.Stdout, "\t%s km\n", colorf(w.Current.VisKm, cyan))
+	fmt.Fprintf(os.Stdout, "\t%s mm", colorf(w.Current.PrecipMm, cyan))
 }
 
 func getWeather(apikey, location string) string {
