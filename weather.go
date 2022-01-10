@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 var (
@@ -46,19 +47,29 @@ func getWeather(apikey, location string, useMetric bool) string {
 
 func main() {
 	apiKey := os.Getenv("WEATHER_APIKEY")
-	location := flag.String("location", "auto:ip", "city to get weather for")
-	units := flag.String("unit", "c", "Units to uses, c for Metric, f for Imperial")
+	location := flag.String("location", "auto:ip", "Location to get weather at. Can be City name, or postal code. Defaults to geo ip")
+	units := flag.String("units", "m", "Units to display, m for Metric, i for Imperial")
 	flag.Parse()
 
 	if apiKey == "" {
 		fmt.Println("Cannot find API key. Shutting down.")
 		os.Exit(1)
 	}
+
 	useMetric := true
-	if *units == "f" {
+	switch {
+	case strings.EqualFold(*units, "i") ||
+		strings.EqualFold(*units, "imperial"):
 		useMetric = false
+	case strings.EqualFold(*units, "m") ||
+		strings.EqualFold(*units, "metric"):
+		useMetric = true
+	default:
+		fmt.Println("Invalid unit units specified: %s", units)
+		fmt.Println("Please use m for metric, i for imperial")
+		os.Exit(1)
+
 	}
 
 	fmt.Println(getWeather(apiKey, *location, useMetric))
-
 }
