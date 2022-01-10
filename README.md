@@ -1,6 +1,6 @@
 # Weather
 
-[![Go Report Card](https://goreportcard.com/report/github.com/JZiegener/go-weather)](https://goreportcard.com/report/github.com/JZiegener/go-weather)
+[![Go Report Card](https://goreportcard.com/badge/github.com/JZiegener/go-weather)](https://goreportcard.com/report/github.com/JZiegener/go-weather)
 
 Simple command line application to get the weather from https://www.weatherapi.com/
 
