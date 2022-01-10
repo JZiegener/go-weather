@@ -43,7 +43,7 @@ type weatherResp struct {
 	} `json:"current"`
 }
 
-// Units agnostic 
+// Units agnostic
 type weatherReport struct {
 	Condition  string
 	Temp       float64

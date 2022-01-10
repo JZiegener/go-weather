@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"os"
 	"strconv"
-	"github.com/fatih/color"
 )
+
 func colorf(v float64, c *color.Color) string {
 	return c.SprintFunc()(strconv.FormatFloat(v, 'f', -1, 64))
 }
@@ -33,5 +34,3 @@ func printWeather(w weatherResp, useMetric bool) {
 	fmt.Fprintf(os.Stdout, "\t%s %s\n", colorf(report.Visiblity, cyan), units.distance)
 	fmt.Fprintf(os.Stdout, "\t%s %s", colorf(report.Percip, cyan), units.volume)
 }
-
-

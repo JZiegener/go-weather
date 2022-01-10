@@ -11,10 +11,8 @@ import (
 
 var (
 	apiKeyName string = "WEATHER_APIKEY"
-	weatherURL    string = "http://api.weatherapi.com/v1/current.json"
+	weatherURL string = "http://api.weatherapi.com/v1/current.json"
 )
-
-
 
 func getWeather(apikey, location string, useMetric bool) string {
 	baseURL, err := url.Parse(weatherURL)
@@ -60,7 +58,6 @@ func main() {
 	if *units == "f" {
 		useMetric = false
 	}
-	
 
 	fmt.Println(getWeather(apiKey, *location, useMetric))
 
