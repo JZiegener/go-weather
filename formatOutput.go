@@ -10,18 +10,18 @@ func colorf(v float64, c *color.Color) string {
 	return c.SprintFunc()(strconv.FormatFloat(v, 'f', -1, 64))
 }
 
-func printWeather(w WeatherResp, useMetric bool) {
+func printWeather(w weatherResp, useMetric bool) {
 	cyan := color.New(color.FgCyan)
 
-	var units WeatherUnits
-	var report WeatherReport
+	var units weatherUnits
+	var report weatherReport
 
 	if useMetric {
-		units = UnitsMetric()
-		report = WeatherReportMetric(w)
+		units = unitsMetric()
+		report = weatherReportMetric(w)
 	} else {
-		units = UnitsImperial()
-		report = WeatherReportImperial(w)
+		units = unitsImperial()
+		report = weatherReportImperial(w)
 	}
 
 	fmt.Fprintf(os.Stdout, "Weather report: %s, %s, %s\n", w.Location.Name, w.Location.Region, w.Location.Country)

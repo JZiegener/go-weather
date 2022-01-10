@@ -1,6 +1,7 @@
 package main
 
-type WeatherResp struct {
+//Json weather object from weatherapi.com
+type weatherResp struct {
 	Location struct {
 		Name           string  `json:"name"`
 		Region         string  `json:"region"`
@@ -42,7 +43,8 @@ type WeatherResp struct {
 	} `json:"current"`
 }
 
-type WeatherReport struct {
+// Units agnostic 
+type weatherReport struct {
 	Condition  string
 	Temp       float64
 	Wind       float64
@@ -58,8 +60,9 @@ type WeatherReport struct {
 	Uv         float64
 }
 
-func WeatherReportMetric(w WeatherResp) WeatherReport {
-	return WeatherReport{w.Current.Condition.Text,
+//Convert from JSON to Metrics representation
+func weatherReportMetric(w weatherResp) weatherReport {
+	return weatherReport{w.Current.Condition.Text,
 		w.Current.TempC,
 		w.Current.WindKph,
 		w.Current.GustKph,
@@ -74,8 +77,9 @@ func WeatherReportMetric(w WeatherResp) WeatherReport {
 		w.Current.Uv}
 }
 
-func WeatherReportImperial(w WeatherResp) WeatherReport {
-	return WeatherReport{w.Current.Condition.Text,
+//Convert from JSON to Imperial representation
+func weatherReportImperial(w weatherResp) weatherReport {
+	return weatherReport{w.Current.Condition.Text,
 		w.Current.TempF,
 		w.Current.WindMph,
 		w.Current.GustMph,
@@ -90,7 +94,8 @@ func WeatherReportImperial(w WeatherResp) WeatherReport {
 		w.Current.Uv}
 }
 
-type WeatherUnits struct {
+//unit labels to use for temp/speed/...
+type weatherUnits struct {
 	temp     string
 	speed    string
 	volume   string
@@ -98,10 +103,12 @@ type WeatherUnits struct {
 	pressure string
 }
 
-func UnitsMetric() WeatherUnits {
-	return WeatherUnits{"C", "KpH", "mm^3", "KM", "mB"}
+//Metric units
+func unitsMetric() weatherUnits {
+	return weatherUnits{"C", "KpH", "mm^3", "KM", "mB"}
 }
 
-func UnitsImperial() WeatherUnits {
-	return WeatherUnits{"F", "MpH", "in^3", "Mi", "In"}
+//Imperial units
+func unitsImperial() weatherUnits {
+	return weatherUnits{"F", "MpH", "in^3", "Mi", "In"}
 }

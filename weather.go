@@ -11,13 +11,14 @@ import (
 
 var (
 	apiKeyName string = "WEATHER_APIKEY"
-	baseURL    string = "http://api.weatherapi.com/v1/current.json"
+	weatherURL    string = "http://api.weatherapi.com/v1/current.json"
 )
 
 
 
 func getWeather(apikey, location string, useMetric bool) string {
-	baseUrl, err := url.Parse(baseURL)
+	baseURL, err := url.Parse(weatherURL)
+
 	if err != nil {
 		fmt.Println("Malformed URL: ", err.Error())
 		return ""
@@ -26,15 +27,15 @@ func getWeather(apikey, location string, useMetric bool) string {
 	query := url.Values{}
 	query.Add("key", apikey)
 	query.Add("q", location)
-	baseUrl.RawQuery = query.Encode()
+	baseURL.RawQuery = query.Encode()
 
-	resp, err := http.Get(baseUrl.String())
+	resp, err := http.Get(baseURL.String())
 	if err != nil {
 		fmt.Println("Error with request:: ", err.Error())
 		return ""
 	}
 	defer resp.Body.Close()
-	var w WeatherResp
+	var w weatherResp
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&w)
 
