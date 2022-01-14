@@ -27,6 +27,8 @@ func getWeather(apikey, location string, useMetric bool) string {
 	query.Add("key", apikey)
 	query.Add("q", location)
 	baseURL.RawQuery = query.Encode()
+	
+	//fmt.Println("query URL: %s", baseURL.String())
 
 	resp, err := http.Get(baseURL.String())
 	if err != nil {
@@ -34,6 +36,14 @@ func getWeather(apikey, location string, useMetric bool) string {
 		return ""
 	}
 	defer resp.Body.Close()
+	if(resp.StatusCode != 200) {
+		fmt.Println("Error making request: ", resp.Status)
+
+		return "";
+	}
+
+
+	
 	var w weatherResp
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&w)
